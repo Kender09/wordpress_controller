@@ -15,7 +15,7 @@ $console
     ->setDefinition(array(
         // new InputOption('some-option', null, InputOption::VALUE_NONE, 'Some help'),
     ))
-    ->setDescription('My command description')
+    ->setDescription('都道府県をカテゴリに設定')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
 		$file = file_get_contents('/home/t_o/works/silex/resource/todouhukenn.txt', FILE_USE_INCLUDE_PATH);
 		$file = preg_replace('/　/', ' ', $file);//全角スペースを半角スペースへ
