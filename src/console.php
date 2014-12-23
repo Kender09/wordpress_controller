@@ -57,7 +57,7 @@ $console
     ))
     ->setDescription('カスタムフィールドを利用した記事の追加')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
-        $app['dataaccess.wpdb']->testdb();
+        $app['dataaccess.wpdb']->pushArticles();
     });
 
 return $console;
