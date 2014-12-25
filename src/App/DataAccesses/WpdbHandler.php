@@ -12,13 +12,17 @@ class WpdbHandler
         $this->doctrine = $doctrine;
     }
 
-    public function pushArticles(){
+    public function pushArticles()
+    {
         $date = date(DATE_ATOM);
 
         //テストデータ
+        // $shop_name = 'AEON池袋校';
+        // $slug_name = $this->getRubi($shop_name);
         $shop_data = array(
                 'shop_name' => 'AEON池袋校',
                 'slug_name' => 'aeon_ikebukuro',
+                // 'slug_name' => $slug_name,
                 'phone_number' => '0800-111-1111',
                 'address' => '東京都豊島区東池袋'
             );
@@ -45,6 +49,8 @@ class WpdbHandler
         //カテゴリが存在しないときは作成
         if($search_flag === 0){
             //実際は$adress_data[2]のルビフリで
+            // $rubi = $this->getRubi($adress_data[2]);
+            // $create_slug = $rubi. '-'. $parent_category[0]['slug'];
             $create_slug = 'toyoshimaku-'. $parent_category[0]['slug'];
 
             $this->doctrine->insert('wp_terms', array(
@@ -130,4 +136,36 @@ class WpdbHandler
         $now_count[0] = (int)$now_count[0] + 1;
         $this->doctrine->update('wp_term_taxonomy', array('count' => $now_count[0]), array('term_id' => $set_term_id));
     }
+
+    public function getRubi($rawstr)
+    {
+        $appid = 'dj0zaiZpPU1HVW1PUFJCekpKSyZzPWNvbnN1bWVyc2VjcmV0Jng9MDk-';
+        // $api = 'http://jlp.yahooapis.jp/JIMService/V1/conversion';
+        $api = 'http://jlp.yahooapis.jp/FuriganaService/V1/furigana';
+        $sentence = $rawstr;
+        $args = array (
+            'appid'=>$appid,
+            'sentence'=>$sentence,
+            );
+        $url = $api . '?' . http_build_query($args);
+        $ch = curl_init ($url);
+        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt ($ch, CURLOPT_TIMEOUT, 900);
+        $data =  curl_exec ($ch);
+        curl_close ($ch);
+
+        preg_match_all( "/<Word>((\n|.)*?)<\/Word>/i", $data, $words);
+        $str = '';
+        foreach ($words[1] as $key => $value) {
+            preg_match("/<Surface>(.*?)<\/Surface>/i", $value, $raw_word);
+                if (preg_match("/^[a-zA-Z]+$/",$raw_word[1])) {
+                    $str .= $raw_word[1];
+                } else {
+                    preg_match( "/<Roman>(.*?)<\/Roman>/i", $value, $rubi_word);
+                    $str .= $rubi_word[1];
+                }
+        }
+        return $str;
+    }
+
 }

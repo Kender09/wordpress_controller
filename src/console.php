@@ -50,6 +50,7 @@ $console
                 ));
         }
     });
+
 $console
     ->register('pushCustomArticles')
     ->setDefinition(array(
@@ -58,6 +59,17 @@ $console
     ->setDescription('カスタムフィールドを利用した記事の追加')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
         $app['dataaccess.wpdb']->pushArticles();
+    });
+
+$console
+    ->register('test')
+    ->setDefinition(array(
+        // new InputOption('some-option', null, InputOption::VALUE_NONE, 'Some help'),
+    ))
+    ->setDescription('test')
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
+        $rubi = $app['dataaccess.wpdb']->getRubi('AEON池袋校');
+        var_dump($rubi);
     });
 
 return $console;
