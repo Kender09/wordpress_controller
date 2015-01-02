@@ -1,0 +1,12 @@
+'shop_name' => '日米会話学院'
+'phone_number' => '03-3359-9621'
+'address' => '東京都新宿区四谷1-21'
+'weekday_business_hours' => '9:00~20:00'
+'weekend_business_hours' => '9:45~17:30'
+'closing_day' => '日曜 祝日'
+'url' => 'http://www.nichibei.ac.jp/',
+'to_adult' =>true,
+'to_child' => true,
+'to_one' => true,
+'to_multi' => true
+'slug_name' => 'nichibei'

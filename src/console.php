@@ -68,8 +68,11 @@ $console
     ))
     ->setDescription('test')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
-        $rubi = $app['dataaccess.wpdb']->getRubi('AEON池袋校');
-        var_dump($rubi);
+        // $str = '岐阜県大垣市外渕2丁目147−1';
+        $return = $app['dataaccess.wpdb']->getResouce();
+        // $app['dataaccess.wpdb']->initAutoIncrement();
+        var_dump($return);
+        // $return = $app['dataaccess.wpdb']->getRubi('Hello!s岐阜本部校');
     });
 
 return $console;
