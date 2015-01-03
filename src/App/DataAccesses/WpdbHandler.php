@@ -32,12 +32,8 @@ class WpdbHandler
         $statement->execute();
     }
 
-    public function getResouce(){
-        // $file = file_get_contents('/home/t_o/works/silex/resource/content_AEON.txt', FILE_USE_INCLUDE_PATH);
-        // $file = preg_replace('/　/', ' ', $file);//全角スペースを半角スペースへ
-        // $file = preg_replace('/\s+/', ' ', $file);//連続する半角スペースを1つの半角スペースへ
-        // $file = explode("¥n", $file);
-        $fp = fopen('/home/t_o/works/silex/resource/content_AEON.txt', 'r');
+    public function getResouceAEON(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_AEON_kai.txt', 'r');
         $count = 1;
         $num = 0;
         $shop_data = array();
@@ -86,6 +82,210 @@ class WpdbHandler
         return $shop_data;
     }
 
+        public function getResouceBER(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_BER.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 6;
+                    $num = floor($count/6);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('shop_name' => 'Berlitz '. trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 4:
+                            $pos_asta = mb_strrpos($buffer, '※');
+                            if($pos_asta){
+                                $closing_day = mb_substr($buffer, $pos_asta + 4);
+                                $shop_data[$num] += array('closing_day' => trim($closing_day));
+                                $buffer = mb_substr($buffer, 0, $pos_asta);
+                            }
+                            $pos_day = mb_strpos($buffer, '（');
+                            $pos_sat = mb_strpos($buffer, '）');
+                            $weekday = mb_substr($buffer, 0, $pos_day);
+                            $weekend = mb_substr($buffer, $pos_sat + 4);
+                            $shop_data[$num] += array('weekday_business_hours' => trim($weekday));
+                            $shop_data[$num] += array('weekend_business_hours' => trim($weekend));
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
+    public function getResouceGABA(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_GABA.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 6;
+                    $num = floor($count/6);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('shop_name' => 'Gaba '. trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 4:
+                            $pos_day = strpos($buffer, '/');
+                            $pos_sat = strrpos($buffer, ':25');
+                            $weekday = substr($buffer, 0, $pos_day);
+                            $weekend = substr($buffer, $pos_day+1, ($pos_sat+3) - ($pos_day +1) );
+                            $shop_data[$num] += array('weekday_business_hours' => trim($weekday));
+                            $shop_data[$num] += array('weekend_business_hours' => trim($weekend));
+                            $closing_day = substr($buffer, $pos_sat+4);
+                            if($closing_day){
+                                $shop_data[$num] += array('closing_day' => trim($closing_day));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
+    public function getResouce(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_ecc.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        $closing_day = '';
+        $weekday = '';
+        $weekend = '';
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 15;
+                    $num = floor($count/15);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('shop_name' => 'ecc '. trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('phone_number' => trim($buffer));
+                            break;
+                        case 4:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 5:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '月 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 6:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '火 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 7:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '水 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 8:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '木 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 9:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '金 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 10:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '土 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 11:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '日 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 12:
+                            if(strstr($buffer, 'お休み')){
+                                $closing_day .= '祝';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 13:
+                            $shop_data[$num] += array('closing_day' => trim($closing_day));
+                            $closing_day = '';
+                            $shop_data[$num] += array('weekday_business_hours' => trim($weekday));
+                            $shop_data[$num] += array('weekend_business_hours' => trim($weekend));
+                            $weekday = '';
+                            $weekend = '';
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
     public function pushArticles()
     {
         $this->initAutoIncrement();
@@ -95,6 +295,7 @@ class WpdbHandler
         // $slug_name = $this->getRubi($shop_name);
         $shop_data = $this->getResouce();
         foreach ($shop_data as $num => $shop) {
+             usleep(500000);
             // $slug_name = $this->getRubi($shop_data[$num]['shop_name']);
             $ll = $this->getLocate($shop_data[$num]['address']);
             if($ll !== false){
@@ -104,12 +305,14 @@ class WpdbHandler
                     'lng' => $ll->lng,
                     'near_station_name' => $nearStation[0]['station_name'],
                     'near_station_distance' => $nearStation[0]['distance']
+                    );
             }
             $shop_num = $num +1;
             //ここは入れるごとに変える
             $shop_data[$num] += array(
                     // 'slug_name' => $slug_name,
-                    'slug_name' => 'aeon'. $shop_num,
+                    // 'phone_number' => '0120-286-815',
+                    'slug_name' => 'ecc'. $shop_num,
                     'to_adult' =>true,
                     'to_child' => true,
                     'to_one' => true,
@@ -162,6 +365,7 @@ class WpdbHandler
             //記事データ
             // $post_url = 'http://160.16.81.237/map/?p='. $id;
             // $post_url = 'http://160.16.81.237/map/'. $parent_category[0]['slug']. '/' . $shop_data[$num]['slug_name']. '/';
+            // $id = 7 + $num;
             $post_url = 'http://160.16.81.237/map/'. 'school'. '/' . $shop_data[$num]['slug_name']. '/';
             $this->doctrine->insert('wp_posts',array(
                     // 'ID' => $id,
@@ -199,6 +403,7 @@ class WpdbHandler
             foreach ($nearStation as $key => $value) {
                 $this->insertCustomField($id, 'near_station_line', $value['line']);
             }
+            $nearStation = array();
 
             //記事に親カテゴリを設定
             $this->doctrine->insert('wp_term_relationships', array(
@@ -231,8 +436,8 @@ class WpdbHandler
             $now_count = $this->doctrine->fetchArray('SELECT count FROM wp_term_taxonomy WHERE term_id = ?', array($tag_id));
             $now_count[0] = (int)$now_count[0] + 1;
             $this->doctrine->update('wp_term_taxonomy', array('count' => $now_count[0]), array('term_id' => $tag_id));
+            */
         }
-*/
     }
 
     //文字列を全てローマ字にして戻す
@@ -284,14 +489,14 @@ class WpdbHandler
         $url = $api . '?address='. urlencode($address). '&sensor=false';
         $ch = curl_init ($url);
         curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt ($ch, CURLOPT_TIMEOUT, 900);
+        curl_setopt ($ch, CURLOPT_TIMEOUT, 1000);
         $data =  curl_exec ($ch);
         curl_close ($ch);
         $data = json_decode($data);
-        try {
+        if($data->results){
             $ll = $data->results[0]->geometry->location;
-        } catch (Exception $e) {
-            echo $address. 'not get ll '. $e. PHP_EOL;
+        }else {
+            echo $address. ' not get ll !!'. PHP_EOL;
             return false;
         }
         // $ll = $data->Feature[0]->Geometry->Coordinates;

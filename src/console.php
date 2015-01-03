@@ -68,10 +68,14 @@ $console
     ))
     ->setDescription('test')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
-        // $str = '岐阜県大垣市外渕2丁目147−1';
-        $return = $app['dataaccess.wpdb']->getResouce();
+        $str = "愛知県稲沢市松下1-2-1国府宮ビル2F";
+        // $return = $app['dataaccess.wpdb']->getResouce();
+        // var_dump($return);
         // $app['dataaccess.wpdb']->initAutoIncrement();
-        var_dump($return);
+        $ll = $app['dataaccess.wpdb']->getLocate($str);
+        var_dump($ll);
+        // $nearStation = $app['dataaccess.wpdb']->getNearStation($ll->lat, $ll->lng);
+        // var_dump($nearStation);
         // $return = $app['dataaccess.wpdb']->getRubi('Hello!s岐阜本部校');
     });
 
