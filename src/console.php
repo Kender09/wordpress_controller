@@ -37,15 +37,16 @@ $console
         //$dbsql = $app['dbs']['mysql_read']->fetchAll('SELECT * FROM wp_terms');
         //var_dump($dbsql);
         foreach($push_arr as $key => $val){
-            $app['dbs']['mysql_read']->insert('wp_terms', array(
-                    'term_id' => $val['id'],
+            $id = 20 + (int)$val['id'];
+            $app['dbs']['mysql_write']->insert('wp_terms', array(
+                    'term_id' => $id,
                     'name' => $val['name'],
                     'slug' => $val['slug']
                 ));
-            $app['dbs']['mysql_read']->insert('wp_term_taxonomy', array(
-                    'term_taxonomy_id' => $val['id'],
-                    'term_id' => $val['id'],
-                    'taxonomy' => 'category',
+            $app['dbs']['mysql_write']->insert('wp_term_taxonomy', array(
+                    'term_taxonomy_id' => $id,
+                    'term_id' => $id,
+                    'taxonomy' => 'item_location',
                     'description' => ''
                 ));
         }
@@ -62,18 +63,29 @@ $console
     });
 
 $console
+    ->register('pushJavo')
+    ->setDefinition(array(
+        // new InputOption('some-option', null, InputOption::VALUE_NONE, 'Some help'),
+    ))
+    ->setDescription('カスタムフィールドを利用した記事の追加')
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
+        $app['dataaccess.wpdb']->pushJavo();
+    });
+
+$console
     ->register('test')
     ->setDefinition(array(
         // new InputOption('some-option', null, InputOption::VALUE_NONE, 'Some help'),
     ))
     ->setDescription('test')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
-        $str = "愛知県稲沢市松下1-2-1国府宮ビル2F";
+        $str = "長野県諏訪郡下諏訪町西四王5006-3 SKSビル2階";
+        $ll = $app['dataaccess.wpdb']->getLocate($str);
+        var_dump($ll);
+
         // $return = $app['dataaccess.wpdb']->getResouce();
         // var_dump($return);
         // $app['dataaccess.wpdb']->initAutoIncrement();
-        $ll = $app['dataaccess.wpdb']->getLocate($str);
-        var_dump($ll);
         // $nearStation = $app['dataaccess.wpdb']->getNearStation($ll->lat, $ll->lng);
         // var_dump($nearStation);
         // $return = $app['dataaccess.wpdb']->getRubi('Hello!s岐阜本部校');

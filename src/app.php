@@ -34,6 +34,14 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
             'user'      => 'root',
             'password'  => 'kuricake',
             'charset'   => 'utf8',
+        ),
+        'mysql_write' => array(
+            'driver'    => 'pdo_mysql',
+            'host'      => 'localhost',
+            'dbname'    => 'map_wpdb',
+            'user'      => 'root',
+            'password'  => 'kuricake',
+            'charset'   => 'utf8',
         )
     ),
 ));

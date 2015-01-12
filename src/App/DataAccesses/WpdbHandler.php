@@ -6,10 +6,12 @@ use Doctrine\DBAL\Connection;
 class WpdbHandler
 {
     protected $doctrine;
+    protected $javo_doctrine;
 
-    public function __construct(Connection $doctrine)
+    public function __construct(Connection $doctrine,Connection $javo_doctrine)
     {
         $this->doctrine = $doctrine;
+        $this->javo_doctrine = $javo_doctrine;
     }
 
     public function initAutoIncrement(){
@@ -29,6 +31,26 @@ class WpdbHandler
         $maxID = (int)$maxID + 1;
         $query = 'ALTER TABLE `wp_terms` AUTO_INCREMENT = '. $maxID;
         $statement = $this->doctrine->prepare($query);
+        $statement->execute();
+    }
+
+    public function initJavoAutoIncrement(){
+        $maxID = $this->javo_doctrine->fetchColumn('SELECT MAX(ID) FROM wp_posts');
+        $maxID = (int)$maxID + 1;
+        $query = 'ALTER TABLE `wp_posts` AUTO_INCREMENT = '. $maxID;
+        $statement = $this->javo_doctrine->prepare($query);
+        $statement->execute();
+
+        $maxID = $this->javo_doctrine->fetchColumn('SELECT MAX(meta_id) FROM wp_postmeta');
+        $maxID = (int)$maxID + 1;
+        $query = 'ALTER TABLE `wp_postmeta` AUTO_INCREMENT = '. $maxID;
+        $statement = $this->javo_doctrine->prepare($query);
+        $statement->execute();
+
+        $maxID = $this->javo_doctrine->fetchColumn('SELECT MAX(term_id) FROM wp_terms');
+        $maxID = (int)$maxID + 1;
+        $query = 'ALTER TABLE `wp_terms` AUTO_INCREMENT = '. $maxID;
+        $statement = $this->javo_doctrine->prepare($query);
         $statement->execute();
     }
 
@@ -180,7 +202,7 @@ class WpdbHandler
         return $shop_data;
     }
 
-    public function getResouce(){
+    public function getResouceECC(){
         $fp = fopen('/home/t_o/works/silex/resource/content_ecc.txt', 'r');
         $count = 1;
         $num = 0;
@@ -286,6 +308,444 @@ class WpdbHandler
         return $shop_data;
     }
 
+    public function getResouceSHANE(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_shane.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        $closing_day = '';
+        $weekday = '';
+        $weekend = '';
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 15;
+                    $num = floor($count/15);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('shop_name' => 'シェーン英会話 '. trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 4:
+                            $shop_data[$num] += array('phone_number' => trim($buffer));
+                            break;
+                        case 5:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '月 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 6:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '火 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 7:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '水 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 8:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '木 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 9:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '金 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 10:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '土 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 11:
+                            if(strstr($buffer, '休校')){
+                                $closing_day .= '日 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 12:
+                            $shop_data[$num] += array('closing_day' => trim($closing_day));
+                            $closing_day = '';
+                            $shop_data[$num] += array('weekday_business_hours' => trim($weekday));
+                            $shop_data[$num] += array('weekend_business_hours' => trim($weekend));
+                            $weekday = '';
+                            $weekend = '';
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
+    public function getResouceNOVA(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_nova.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        $closing_day = '';
+        $weekday = '';
+        $weekend = '';
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 14;
+                    $num = floor($count/14);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('shop_name' => 'NOVA '. trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 4:
+                            $shop_data[$num] += array('phone_number' => trim($buffer));
+                            break;
+                        case 5:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '月 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 6:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '火 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 7:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '水 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 8:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '木 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 9:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '金 ';
+                                break;
+                            }
+                            $weekday .= $buffer;
+                            break;
+                        case 10:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '土 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 11:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '日 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 12:
+                            if(strstr($buffer, '休')){
+                                $closing_day .= '祝 ';
+                                break;
+                            }
+                            $weekend .= $buffer;
+                            break;
+                        case 13:
+                            $shop_data[$num] += array('closing_day' => trim($closing_day));
+                            $closing_day = '';
+                            $shop_data[$num] += array('weekday_business_hours' => trim($weekday));
+                            $shop_data[$num] += array('weekend_business_hours' => trim($weekend));
+                            $weekday = '';
+                            $weekend = '';
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
+    public function getResouceCOCO(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_coco.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        $closing_day = '';
+        $weekday = '';
+        $weekend = '';
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 7;
+                    $num = floor($count/7);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('shop_name' => trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 4:
+                            $shop_data[$num] += array('phone_number' => trim($buffer));
+                            break;
+                        case 5:
+                            $pos_asta = strrpos($buffer, '※');
+                            $pos_teikyu = strrpos($buffer, '定休');
+                            if($pos_asta){
+                                $closing_day = substr($buffer, $pos_asta+3, $pos_teikyu-($pos_asta+3));
+                                $shop_data[$num] += array('closing_day' => trim($closing_day));
+                                $buffer = substr($buffer, 0, $pos_asta). substr($buffer, $pos_teikyu+6);
+                            }
+                            $pos_sat = mb_strrpos($buffer, '土');
+                            $weekday = mb_substr($buffer, 0, $pos_sat);
+                            $weekend = mb_substr($buffer, $pos_sat);
+                            $shop_data[$num] += array('weekday_business_hours' => trim($weekday));
+                            $shop_data[$num] += array('weekend_business_hours' => trim($weekend));
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
+    public function getResouce(){
+        $fp = fopen('/home/t_o/works/silex/resource/content_winbe.txt', 'r');
+        $count = 1;
+        $num = 0;
+        $shop_data = array();
+        $closing_day = '';
+        $weekday = '';
+        $weekend = '';
+        if ($fp){
+            if (flock($fp, LOCK_SH)){
+                while (!feof($fp)) {
+                    $buffer = fgets($fp);
+                    $buffer = preg_replace('/　/', ' ', $buffer);
+                    $buffer = preg_replace('/\s+/', ' ', $buffer);
+                    $now_line = $count % 5;
+                    $num = floor($count/5);
+                    switch ($now_line) {
+                        case 1:
+                            $shop_data[$num] = array('url' => 'http://www.tact-net.jp/winbe/index.htm');
+                            $shop_data[$num] += array('shop_name' => 'WinBe '. trim($buffer));
+                            break;
+                        case 2:
+                            $shop_data[$num] += array('address' => trim($buffer));
+                            break;
+                        case 3:
+                            $shop_data[$num] += array('phone_number' => trim($buffer));
+                            break;
+                        default:
+                            break;
+                    }
+                    $count++;
+                }
+                flock($fp, LOCK_UN);
+            }else{
+                echo 'ファイルロックに失敗しました' .PHP_EOL;
+            }
+        }
+        return $shop_data;
+    }
+
+    public function pushJavo(){
+        $this->initJavoAutoIncrement();
+        $date = date(DATE_ATOM);
+
+
+        for ($i=975; $i <= 1020 ; $i++) {
+            $id = $i;
+
+            $post = $this->doctrine->fetchAll('SELECT * FROM wp_posts WHERE ID= ?', array($id));
+            // var_dump($post);
+            $shop_name = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'shop_name'));
+            $shop_lat = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'lat'));
+            $shop_lng = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'lng'));
+            $shop_address = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'address'));
+            $shop_phone_number = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'phone_number'));
+            $shop_url = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'url'));
+            $shop_weekend_business_hours = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'weekend_business_hours'));
+            $shop_weekday_business_hours= $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'weekday_business_hours'));
+            $shop_closing_day = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'closing_day'));
+            $shop_slug_name = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'slug_name'));
+            $shop_near_station_name = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'near_station_name'));
+            $shop_near_station_distance = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'near_station_distance'));
+            $shop_to_child = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'to_child'));
+            if((int)$shop_to_child ===1){
+                $shop_to_child = 'Yes';
+            }else{
+                $shop_to_child = 'No';
+            }
+            $shop_to_adult = $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'to_adult'));
+            if((int)$shop_to_adult ===1){
+                $shop_to_adult = 'Yes';
+            }else{
+                $shop_to_adult = 'No';
+            }
+            $shop_to_one= $this->doctrine->fetchColumn('SELECT meta_value FROM wp_postmeta WHERE post_id = ? AND meta_key = ?', array($id, 'to_one'));
+            if((int)$shop_to_one ===1){
+                $shop_to_one = 's:34:"idfb08221912114f45211fe88cecca42f7";a:2:{s:5:"value";a:2:{i:0;s:5:"adult";i:1;s:5:"child";}s:5:"label";s:13:"Private class";}}';
+            }else{
+                $shop_to_one = 's:34:"idfb08221912114f45211fe88cecca42f7";a:1:{s:5:"label";s:13:"Private class";}}';
+            }
+
+            // var_dump($shop_name);
+            // return;
+            preg_match('/(東京都|北海道|(?:京都|大阪)府|.{6,9}県)((?:四日市|廿日市|野々市|かすみがうら|つくばみらい|いちき串木野)市|(?:杵島郡大町|余市郡余市|高市郡高取)町|.{3,12}市.{3,12}区|.{3,9}区|.{3,15}市(?=.*市)|.{3,15}市|.{6,27}町(?=.*町)|.{6,27}町|.{9,24}村(?=.*村)|.{9,24}村)(.*)/', $shop_address, $address_data);
+            $parent_category = $this->javo_doctrine->fetchAll('SELECT * FROM wp_terms WHERE name = ?', array($address_data[1]));
+            // var_dump($parent_category);
+            $cus_latlng = 'a:7:{s:3:"lat";s:'. strlen($shop_lat) .':"'. $shop_lat. '";s:3:"lng";s:'. strlen($shop_lng). ':"'. $shop_lng. '";s:10:"street_lat";s:'. strlen($shop_lat).':"'. $shop_lat. '";s:10:"street_lng";s:'.strlen($shop_lng).':"'. $shop_lng. '";s:14:"street_heading";s:1:"0";s:12:"street_pitch";s:1:"0";s:11:"street_zoom";s:1:"0";}';
+            $cus_latlng_strlen = strlen($cus_latlng);
+            $cus_latlng = 's:'. $cus_latlng_strlen. ':"'. $cus_latlng. '";';
+
+            $cus_directory_meta = 'a:4:{s:7:"address";s:'.strlen($shop_address).':"'. $shop_address. '";s:5:"phone";s:'.strlen($shop_phone_number).':"'. $shop_phone_number . '";s:5:"email";s:0:"";s:7:"website";s:'.strlen($shop_url).':"'. $shop_url. '";}';
+            $cus_directory_meta_strlen = strlen($cus_directory_meta);
+            $cus_directory_meta = 's:'. $cus_directory_meta_strlen. ':"'. $cus_directory_meta. '";';
+
+            $cus_custom_variables = 'a:7:{s:34:"id01ebbda0392593f472734cc46b780a13";a:2:{s:5:"value";s:'.strlen($shop_near_station_name. '駅 '. $shop_near_station_distance).':"'. $shop_near_station_name. '駅 '. $shop_near_station_distance. '";s:5:"label";s:15:"Nearest station";}s:34:"id1d29875a5820da081fca20c2863ede2c";a:2:{s:5:"value";s:'.strlen($shop_weekday_business_hours).':"'. $shop_weekday_business_hours.'";s:5:"label";s:22:"Weekday business hours";}s:34:"id1df358282b792138a9f6373a44bf4e11";a:2:{s:5:"value";s:'.strlen($shop_weekend_business_hours).':"'. $shop_weekend_business_hours.'";s:5:"label";s:22:"Weekend business hours";}s:34:"idaddcfa748f61a070019cd5c2c742897d";a:2:{s:5:"value";s:'.strlen($shop_closing_day).':"'. $shop_closing_day.'";s:5:"label";s:11:"Closing day";}s:34:"id21b2afa873c7e0cd744dfdaa0ab52682";a:2:{s:5:"value";s:'.strlen($shop_to_adult).':"'. $shop_to_adult. '";s:5:"label";s:8:"To adult";}s:34:"id184d44864ce283b00d81222c5c36df8a";a:2:{s:5:"value";s:'.strlen($shop_to_child).':"'. $shop_to_child.'";s:5:"label";s:8:"To child";}'. $shop_to_one;
+            // return;
+            $shop_data = array(
+                'javo_control_options' => '',
+                'javo_slider_type' => '',
+                'javo_posts_per_page' => '',
+                'javo_item_tax' => 's:17:"a:1:{i:0;s:0:"";}";',
+                'javo_blog_tax' => '',
+                'javo_item_terms' => 's:2:"N;";',
+                'javo_blog_terms' => 's:2:"N;";',
+                'rating_average' => '',
+                'rating_count' => 0,
+                '_edit_last' => 1,//検討
+    //            '_edit_lock' => '1421071382:1',//検討
+                'slide_template' => 'default',
+                'javo_this_featured_item' => 'nouse',
+                'video' => '',
+                'latlng' => $cus_latlng,//地図情報
+                'directory_meta' => $cus_directory_meta,//店舗情報
+                'detail_images' => 's:2:"N;";',
+                'item_map_positon' => 's:6:"a:0:{}";',
+                'item_map_type' => 's:6:"a:0:{}";',
+                'custom_variables'=>$cus_custom_variables,
+            );
+            // var_dump($shop_data);
+        // return;
+            $post_url = 'http://160.16.81.237/test/'. 'school'. '/' . $shop_slug_name. '/';
+            $this->javo_doctrine->insert('wp_posts',array(
+                    // 'ID' => $id,
+                    'post_author' => '1',
+                    'post_date' => $date,
+                    'post_date_gmt' => $date,
+                    'post_content' => '',
+                    'post_title' =>  $shop_name,
+                    'post_excerpt' => '',
+                    'post_status' => 'publish',
+                    'comment_status' => 'closed',
+                    'ping_status' => 'closed',
+                    'post_password' => '',
+                    'post_name' => $shop_slug_name,
+                    'to_ping' => '',
+                    'pinged' => '',
+                    'post_modified' => $date,
+                    'post_modified_gmt' => $date,
+                    'post_content_filtered' => '',
+                    'post_parent' => 0,
+                    'guid' => $post_url,
+                    'post_type' => 'item',
+                    'post_mime_type' => ''
+            ));
+
+            $post_id = $this->javo_doctrine->fetchArray('SELECT ID FROM wp_posts WHERE post_name = ?', array($shop_slug_name));
+            $post_id = $post_id[0];
+            var_dump($post_id);
+            //カスタムフィールド
+            //shop_dataにあるものは全て登録
+            foreach ($shop_data as $key => $value) {
+                $this->insertJavoCustomField($post_id, $key, $value);
+            }
+
+            //location
+            $this->javo_doctrine->insert('wp_term_relationships', array(
+                    'object_id' => $post_id,
+                    'term_taxonomy_id' => $parent_category[0]['term_id']
+                ));
+            //親カテゴリのカウント数をプラス１
+            $now_count = $this->javo_doctrine->fetchArray('SELECT count FROM wp_term_taxonomy WHERE term_id = ?', array($parent_category[0]['term_id']));
+            $now_count[0] = (int)$now_count[0] + 1;
+            $this->javo_doctrine->update('wp_term_taxonomy', array('count' => $now_count[0]), array('term_id' => $parent_category[0]['term_id']));
+
+            //会社名
+            $taxonomy_id = 76;//変更!!
+            $this->javo_doctrine->insert('wp_term_relationships', array(
+                    'object_id' => $post_id,
+                    'term_taxonomy_id' => $taxonomy_id
+            ));
+            //カウント数をプラス１
+            $now_count = $this->javo_doctrine->fetchArray('SELECT count FROM wp_term_taxonomy WHERE term_id = ?', array($taxonomy_id));
+            $now_count[0] = (int)$now_count[0] + 1;
+            $this->javo_doctrine->update('wp_term_taxonomy', array('count' => $now_count[0]), array('term_id' => $taxonomy_id));
+        }
+    }
+
     public function pushArticles()
     {
         $this->initAutoIncrement();
@@ -312,13 +772,13 @@ class WpdbHandler
             $shop_data[$num] += array(
                     // 'slug_name' => $slug_name,
                     // 'phone_number' => '0120-286-815',
-                    'slug_name' => 'ecc'. $shop_num,
+                    'slug_name' => 'winbe'. $shop_num,
                     'to_adult' =>true,
                     'to_child' => true,
-                    'to_one' => true,
+                    'to_one' => false,
                     'to_multi' => true
                 );
-
+            // continue;
             preg_match('/(東京都|北海道|(?:京都|大阪)府|.{6,9}県)((?:四日市|廿日市|野々市|かすみがうら|つくばみらい|いちき串木野)市|(?:杵島郡大町|余市郡余市|高市郡高取)町|.{3,12}市.{3,12}区|.{3,9}区|.{3,15}市(?=.*市)|.{3,15}市|.{6,27}町(?=.*町)|.{6,27}町|.{9,24}村(?=.*村)|.{9,24}村)(.*)/', $shop_data[$num]['address'], $address_data);
 
             $parent_category = $this->doctrine->fetchAll('SELECT * FROM wp_terms WHERE name = ?', array($address_data[1]));
@@ -545,6 +1005,15 @@ class WpdbHandler
      protected function insertCustomField($id, $key, $value)
      {
             $this->doctrine->insert('wp_postmeta', array(
+                'post_id' => $id,
+                'meta_key' => $key,
+                'meta_value' => $value
+            ));
+     }
+
+    protected function insertJavoCustomField($id, $key, $value)
+     {
+            $this->javo_doctrine->insert('wp_postmeta', array(
                 'post_id' => $id,
                 'meta_key' => $key,
                 'meta_value' => $value

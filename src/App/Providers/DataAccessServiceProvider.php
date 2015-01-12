@@ -11,7 +11,8 @@ class DataAccessServiceProvider implements ServiceProviderInterface {
     {
         $app['dataaccess.wpdb'] = $app->share(function() use($app) {
             return new DataAccesses\WpdbHandler(
-                $app['dbs']['mysql_read']
+                $app['dbs']['mysql_read'],
+                $app['dbs']['mysql_write']
             );
         });
     }
